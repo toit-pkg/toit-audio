@@ -1,0 +1,4 @@
+name: audio
+description: Packed PCM processing and DSP primitives for Toit.
+environment:
+  sdk: ^2.0.0-alpha.198
