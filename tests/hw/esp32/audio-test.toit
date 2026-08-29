@@ -39,30 +39,27 @@ test:
   test-complex-float32
 
 is-common-audio-enabled -> bool:
-  exception := catch:
+  return is-enabled:
     audio.peak-absolute #[] --format=audio.PCM-S16-LE
-  if not exception: return true
-  if exception == "UNIMPLEMENTED": return false
-  throw exception
 
 is-extra-audio-enabled -> bool:
-  plan := audio.RealFftQ15Plan 2
-  exception := catch:
+  return is-enabled:
+    plan := audio.RealFftQ15Plan 2
     plan.power-spectrum (pcm16 [0, 0])
-        --destination=(ByteArray plan.output-byte-size)
+        --destination=ByteArray plan.output-byte-size
         --format=audio.PCM-S16-LE
-  if not exception: return true
-  if exception == "UNIMPLEMENTED": return false
-  throw exception
 
 is-float-audio-enabled -> bool:
-  plan := audio.ComplexFftFloat32Plan 2
-  data := ByteArray plan.byte-size
-  exception := catch:
+  return is-enabled:
+    plan := audio.ComplexFftFloat32Plan 2
+    data := ByteArray plan.byte-size
     plan.transform data --destination=data
-  if not exception: return true
-  if exception == "UNIMPLEMENTED": return false
-  throw exception
+
+is-enabled [block] -> bool:
+  catch --unwind=(: it != "UNIMPLEMENTED"):
+    block.call
+    return true
+  return false
 
 pcm16 values/List -> ByteArray:
   result := ByteArray (values.size * 2)
